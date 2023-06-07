@@ -4,14 +4,15 @@ from sqlalchemy import Integer, String
 from models.mixin import MixinModel
 
 
-class DriverModel(BaseModel, MixinModel):
-  __tablename__ = 'drivers'
+class FleetModel(BaseModel, MixinModel):
+  __tablename__ = 'fleets'
   id = mapped_column(Integer, primary_key=True)
   name = mapped_column(String(50))
 
-  # relationship with the CarModel
-  # this is a one-to-one relationship: one driver has one car
-  car = relationship('CarModel', back_populates='driver', uselist=False)
+  # many-to-many relationship: one fleet can have many cars, and one car can
+  cars = relationship('CarModel',
+                      secondary='car_fleet',
+                      back_populates='fleets')
 
   def __init__(self, name):
     self.name = name
@@ -22,3 +23,7 @@ class DriverModel(BaseModel, MixinModel):
   @classmethod
   def find_by_id(cls, id):
     return cls.query.filter_by(id=id).first()
+
+  @classmethod
+  def find_by_name(cls, name):
+    return cls.query.filter_by(name=name).first()

@@ -11,6 +11,8 @@ class Car(Resource):
 
   def post(self, plate):
     car = CarModel.find_by_license_plate(plate)
+    # the same line of code can be written as:
+    # car = CarModel.query.filter_by(license_plate=plate).first()
     if car:
       return {
           'message': f'A car with license plate {plate} already exists'
@@ -20,6 +22,26 @@ class Car(Resource):
     car = CarModel(plate, data['type'])
     car.save_to_db()
     return {'message': 'Car created successfully'}, 201
+
+  def delete(self, plate):
+    car = CarModel.find_by_license_plate(plate)
+    if car:
+      car.delete_from_db()
+      # if we don't create a method for deletion, we could just do:
+      # db.session.delete(car)
+      # db.session.commit()
+      return {'message': 'Car deleted'}
+    return {'message': 'Car not found'}, 404
+
+  def put(self, plate):
+    data = Car.parser.parse_args()
+    car = CarModel.find_by_license_plate(plate)
+    if car:
+      car.type = data['type']
+      car.save_to_db()
+    else:
+      return {'message': 'Car not found'}, 404
+    return car.json()
 
 
 class CarList(Resource):
