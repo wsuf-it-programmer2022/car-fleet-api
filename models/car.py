@@ -39,4 +39,8 @@ class CarModel(BaseModel, MixinModel):
     return cls.query.filter_by(id=id).first()
 
   def json(self):
-    return {'license_plate': self.license_plate, 'type': self.type}
+    return {
+        'license_plate': self.license_plate,
+        'type': self.type,
+        'id': self.id
+    }

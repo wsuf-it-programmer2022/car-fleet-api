@@ -11,6 +11,8 @@ class Driver(Resource):
 
   def post(self):
     data = Driver.parser.parse_args()
+    if data['name'] == "":
+      return {'message': 'Driver name cannot be empty'}, 400
     driver = DriverModel(data['name'])
     driver.save_to_db()
     return {'message': 'Driver created successfully'}, 201

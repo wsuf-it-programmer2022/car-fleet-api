@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse
 from models.car import CarModel
+from flask_jwt_extended import jwt_required
 
 
 class Car(Resource):
@@ -20,6 +21,12 @@ class Car(Resource):
     # the dequest data is a dictionary with the data that was sent by the client
     data = Car.parser.parse_args()
     car = CarModel(plate, data['type'])
+
+    # the licens plate format can be for example: ABC-123
+    if not plate[0:3].isalpha() or not plate[4:7].isdigit() or not len(
+        plate) == 7:
+      return {'message': 'Invalid license plate'}, 400
+
     car.save_to_db()
     return {'message': 'Car created successfully'}, 201
 
@@ -46,6 +53,7 @@ class Car(Resource):
 
 class CarList(Resource):
 
+  @jwt_required()
   def get(self):
     # without list comprehension, the code would look like this:
     # carModels = CarModel.query.all()
